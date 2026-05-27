@@ -4,8 +4,9 @@ import '../models/travel_route_model.dart';
 
 class ResultScreen extends StatelessWidget {
   final TravelRoute travelRoute;
+  final bool fromCache;
 
-  const ResultScreen({super.key, required this.travelRoute});
+  const ResultScreen({super.key, required this.travelRoute, this.fromCache = false});
 
   @override
   Widget build(BuildContext context) {
@@ -47,6 +48,10 @@ class ResultScreen extends StatelessWidget {
           _chip(Icons.calendar_today, '${travelRoute.days} Gün'),
           const SizedBox(width: 16),
           _chip(Icons.wallet, travelRoute.budget),
+          if (fromCache) ...[
+            const SizedBox(width: 16),
+            _chip(Icons.offline_bolt, 'Önbellekten'),
+          ],
         ],
       ),
     );

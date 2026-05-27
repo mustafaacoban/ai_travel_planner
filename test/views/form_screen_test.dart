@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_travel_planner/models/travel_route_model.dart';
+import 'package:ai_travel_planner/providers/travel_provider.dart';
 import 'package:ai_travel_planner/services/travel_service.dart';
 import 'package:ai_travel_planner/views/form_screen.dart';
 import 'package:ai_travel_planner/views/result_screen.dart';
@@ -31,9 +34,17 @@ void main() {
     GoogleFonts.config.allowRuntimeFetching = false;
   });
 
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
+  });
+
   Widget buildForm({ITravelService? service}) {
-    return MaterialApp(
-      home: FormScreen(travelService: service ?? FakeTravelService()),
+    return ChangeNotifierProvider(
+      create: (_) => TravelProvider(
+        service: service ?? FakeTravelService(),
+        checkOnline: () async => true,
+      ),
+      child: const MaterialApp(home: FormScreen()),
     );
   }
 

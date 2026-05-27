@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../services/travel_service.dart';
+import 'package:provider/provider.dart';
+import '../models/budget_type.dart';
+import '../providers/travel_provider.dart';
 import 'result_screen.dart';
 
 class FormScreen extends StatefulWidget {
-  final ITravelService? travelService;
-  const FormScreen({super.key, this.travelService});
+  const FormScreen({super.key});
 
   @override
   State<FormScreen> createState() => _FormScreenState();
@@ -14,17 +15,9 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _destinationController = TextEditingController();
-  late final ITravelService _travelService;
 
   int _days = 3;
-  String _budget = 'Orta';
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _travelService = widget.travelService ?? TravelService();
-  }
+  BudgetType _budget = BudgetType.orta;
 
   @override
   void dispose() {
@@ -34,77 +27,81 @@ class _FormScreenState extends State<FormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text(
-          'AI Rota Planlayıcı',
-          style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.deepPurple,
-        elevation: 0,
-      ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  _buildLabel('Nereye gitmek istersiniz?', Icons.flight_takeoff),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _destinationController,
-                    decoration: _inputDecoration('Örn: Paris, Tokyo, Antalya...', Icons.location_on),
-                    validator: (value) =>
-                        (value == null || value.isEmpty) ? 'Lütfen bir varış noktası girin' : null,
-                  ),
-                  const SizedBox(height: 28),
-                  _buildLabel('Kaç gün?  →  $_days Gün', Icons.calendar_today),
-                  Slider(
-                    value: _days.toDouble(),
-                    min: 1,
-                    max: 14,
-                    divisions: 13,
-                    label: '$_days Gün',
-                    activeColor: Colors.deepPurple,
-                    onChanged: (v) => setState(() => _days = v.toInt()),
-                  ),
-                  const SizedBox(height: 28),
-                  _buildLabel('Bütçe Tercihi', Icons.wallet),
-                  const SizedBox(height: 12),
-                  ...['Ekonomik', 'Orta', 'Lüks'].map(_buildBudgetCard),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.deepPurple,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                        elevation: 4,
-                      ),
-                      onPressed: _isLoading ? null : _submitForm,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: Text(
-                        'Rota Oluştur',
-                        style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                ],
-              ),
+    return Consumer<TravelProvider>(
+      builder: (context, provider, _) {
+        return Scaffold(
+          backgroundColor: Colors.grey[50],
+          appBar: AppBar(
+            title: Text(
+              'AI Rota Planlayıcı',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.white),
             ),
+            centerTitle: true,
+            backgroundColor: Colors.deepPurple,
+            elevation: 0,
           ),
-          if (_isLoading) _buildLoadingOverlay(),
-        ],
-      ),
+          body: Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 8),
+                      _buildLabel('Nereye gitmek istersiniz?', Icons.flight_takeoff),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _destinationController,
+                        decoration: _inputDecoration('Örn: Paris, Tokyo, Antalya...', Icons.location_on),
+                        validator: (value) =>
+                            (value == null || value.isEmpty) ? 'Lütfen bir varış noktası girin' : null,
+                      ),
+                      const SizedBox(height: 28),
+                      _buildLabel('Kaç gün?  →  $_days Gün', Icons.calendar_today),
+                      Slider(
+                        value: _days.toDouble(),
+                        min: 1,
+                        max: 14,
+                        divisions: 13,
+                        label: '$_days Gün',
+                        activeColor: Colors.deepPurple,
+                        onChanged: (v) => setState(() => _days = v.toInt()),
+                      ),
+                      const SizedBox(height: 28),
+                      _buildLabel('Bütçe Tercihi', Icons.wallet),
+                      const SizedBox(height: 12),
+                      ...BudgetType.values.map(_buildBudgetCard),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 4,
+                          ),
+                          onPressed: provider.isLoading ? null : _submitForm,
+                          icon: const Icon(Icons.auto_awesome),
+                          label: Text(
+                            'Rota Oluştur',
+                            style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
+                  ),
+                ),
+              ),
+              if (provider.isLoading) _buildLoadingOverlay(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -130,18 +127,8 @@ class _FormScreenState extends State<FormScreen> {
     );
   }
 
-  Widget _buildBudgetCard(String level) {
+  Widget _buildBudgetCard(BudgetType level) {
     final isSelected = _budget == level;
-    const icons = {
-      'Ekonomik': Icons.savings,
-      'Orta': Icons.account_balance_wallet,
-      'Lüks': Icons.diamond,
-    };
-    const descriptions = {
-      'Ekonomik': 'Hostel, sokak yemeği, toplu taşıma',
-      'Orta': '3-4 yıldız otel, restoran, taksi',
-      'Lüks': '5 yıldız, fine dining, özel transfer',
-    };
 
     return GestureDetector(
       onTap: () => setState(() => _budget = level),
@@ -162,21 +149,21 @@ class _FormScreenState extends State<FormScreen> {
         ),
         child: Row(
           children: [
-            Icon(icons[level], color: isSelected ? Colors.white : Colors.deepPurple),
+            Icon(level.icon, color: isSelected ? Colors.white : Colors.deepPurple),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    level,
+                    level.label,
                     style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold,
                       color: isSelected ? Colors.white : Colors.black87,
                     ),
                   ),
                   Text(
-                    descriptions[level]!,
+                    level.cardDescription,
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: isSelected ? Colors.white70 : Colors.grey[600],
@@ -225,26 +212,29 @@ class _FormScreenState extends State<FormScreen> {
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isLoading = true);
+    final provider = context.read<TravelProvider>();
+    await provider.generate(
+      destination: _destinationController.text.trim(),
+      days: _days,
+      budget: _budget.label,
+    );
 
-    try {
-      final route = await _travelService.generateItinerary(
-        destination: _destinationController.text.trim(),
-        days: _days,
-        budget: _budget,
-      );
+    if (!mounted) return;
 
-      if (!mounted) return;
-
+    if (provider.state == TravelState.success && provider.route != null) {
       await Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => ResultScreen(travelRoute: route)),
+        MaterialPageRoute(
+          builder: (_) => ResultScreen(
+            travelRoute: provider.route!,
+            fromCache: provider.fromCache,
+          ),
+        ),
       );
-    } catch (e) {
-      if (!mounted) return;
-      _showError(e.toString());
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
+      provider.reset();
+    } else if (provider.state == TravelState.error) {
+      _showError(provider.errorMessage ?? 'Bilinmeyen hata');
+      provider.reset();
     }
   }
 
@@ -260,10 +250,7 @@ class _FormScreenState extends State<FormScreen> {
             Text('Hata', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
           ],
         ),
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(fontSize: 14),
-        ),
+        content: Text(message, style: GoogleFonts.poppins(fontSize: 14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
