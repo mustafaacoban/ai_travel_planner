@@ -42,7 +42,13 @@ class TravelService implements ITravelService {
             statusCode == 429 ||
             (statusCode != null && statusCode >= 500);
         if (!isRetryable) {
-          throw Exception('API Hatası $statusCode: ${e.response?.data}');
+          if (statusCode == 401 || statusCode == 403) {
+            throw Exception('API anahtarı geçersiz veya yetkisiz (HTTP $statusCode).');
+          } else if (statusCode == 400) {
+            throw Exception('Geçersiz istek (HTTP 400).');
+          } else {
+            throw Exception('API Hatası: HTTP $statusCode');
+          }
         }
         lastError = Exception('Bağlantı hatası: ${e.message}');
         if (attempt < _maxRetries) {
@@ -60,6 +66,10 @@ class TravelService implements ITravelService {
     required String budget,
     required String language,
   }) async {
+    if (!AppConfig.isApiKeyConfigured) {
+      throw Exception(
+          'API anahtarı yapılandırılmamış. --dart-define=GEMINI_API_KEY=<API_KEY> ile çalıştırın.');
+    }
     final budgetText = BudgetType.fromLabel(budget).apiDescription(language);
     final isTr = language == 'tr';
 

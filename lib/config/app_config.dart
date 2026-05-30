@@ -3,4 +3,6 @@ class AppConfig {
   static const String geminiModel = 'gemini-1.5-flash';
   static const String geminiBaseUrl =
       'https://generativelanguage.googleapis.com/v1beta/models';
+
+  static bool get isApiKeyConfigured => geminiApiKey.isNotEmpty;
 }

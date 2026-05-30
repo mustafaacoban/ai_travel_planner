@@ -110,12 +110,20 @@ class _FormScreenState extends State<FormScreen> {
                               : 'e.g. Paris, Tokyo, New York...',
                           Icons.location_on,
                         ),
-                        validator: (value) =>
-                            (value == null || value.isEmpty)
-                                ? (isTr
-                                    ? 'Lütfen bir varış noktası girin'
-                                    : 'Please enter a destination')
-                                : null,
+                        maxLength: 100,
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return isTr
+                                ? 'Lütfen bir varış noktası girin'
+                                : 'Please enter a destination';
+                          }
+                          if (value.trim().length > 100) {
+                            return isTr
+                                ? 'En fazla 100 karakter girilebilir'
+                                : 'Maximum 100 characters allowed';
+                          }
+                          return null;
+                        },
                       ),
                       const SizedBox(height: 28),
                       _buildLabel(
