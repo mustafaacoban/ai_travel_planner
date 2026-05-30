@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_travel_planner/models/travel_route_model.dart';
 import 'package:ai_travel_planner/providers/travel_provider.dart';
+import 'package:ai_travel_planner/providers/settings_provider.dart';
 import 'package:ai_travel_planner/services/travel_service.dart';
 import 'package:ai_travel_planner/views/form_screen.dart';
 import 'package:ai_travel_planner/views/result_screen.dart';
@@ -18,6 +19,7 @@ class FakeTravelService implements ITravelService {
     required String destination,
     required int days,
     required String budget,
+    String language = 'tr',
   }) async {
     if (shouldThrow) throw Exception('Bağlantı hatası: sunucuya ulaşılamıyor');
     return TravelRoute(
@@ -39,11 +41,16 @@ void main() {
   });
 
   Widget buildForm({ITravelService? service}) {
-    return ChangeNotifierProvider(
-      create: (_) => TravelProvider(
-        service: service ?? FakeTravelService(),
-        checkOnline: () async => true,
-      ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(
+          create: (_) => TravelProvider(
+            service: service ?? FakeTravelService(),
+            checkOnline: () async => true,
+          ),
+        ),
+      ],
       child: const MaterialApp(home: FormScreen()),
     );
   }

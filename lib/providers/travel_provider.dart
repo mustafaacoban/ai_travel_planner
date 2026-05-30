@@ -44,6 +44,7 @@ class TravelProvider extends ChangeNotifier {
     required String destination,
     required int days,
     required String budget,
+    String language = 'tr',
   }) async {
     _state = TravelState.loading;
     _errorMessage = null;
@@ -59,7 +60,9 @@ class TravelProvider extends ChangeNotifier {
         _fromCache = true;
         _state = TravelState.success;
       } else {
-        _errorMessage = 'İnternet bağlantısı yok ve önbellekte kayıtlı plan bulunamadı.';
+        _errorMessage = language == 'tr'
+            ? 'İnternet bağlantısı yok ve önbellekte kayıtlı plan bulunamadı.'
+            : 'No internet connection and no cached plan found.';
         _state = TravelState.error;
       }
       notifyListeners();
@@ -80,6 +83,7 @@ class TravelProvider extends ChangeNotifier {
         destination: destination,
         days: days,
         budget: budget,
+        language: language,
       );
       await _cache.save(_route!);
       _state = TravelState.success;

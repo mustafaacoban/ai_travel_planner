@@ -1,12 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ai_travel_planner/models/travel_route_model.dart';
+import 'package:ai_travel_planner/providers/settings_provider.dart';
 import 'package:ai_travel_planner/views/result_screen.dart';
+
+Widget _wrap(Widget child) {
+  return ChangeNotifierProvider(
+    create: (_) => SettingsProvider(),
+    child: MaterialApp(home: child),
+  );
+}
 
 void main() {
   setUpAll(() {
     GoogleFonts.config.allowRuntimeFetching = false;
+  });
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues({});
   });
 
   const testRoute = TravelRoute(
@@ -18,39 +32,39 @@ void main() {
   );
 
   testWidgets('hedef şehir AppBar başlığında görünür', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: ResultScreen(travelRoute: testRoute)),
-    );
+    await tester.pumpWidget(_wrap(const ResultScreen(travelRoute: testRoute)));
+    await tester.pump();
     expect(find.text('İstanbul'), findsOneWidget);
   });
 
   testWidgets('gün sayısı ve bütçe info bar\'da gösterilir', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: ResultScreen(travelRoute: testRoute)),
-    );
+    await tester.pumpWidget(_wrap(const ResultScreen(travelRoute: testRoute)));
+    await tester.pump();
     expect(find.text('3 Gün'), findsOneWidget);
     expect(find.text('Orta'), findsOneWidget);
   });
 
   testWidgets('yeni plan oluştur butonu görünür', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: ResultScreen(travelRoute: testRoute)),
-    );
+    await tester.pumpWidget(_wrap(const ResultScreen(travelRoute: testRoute)));
+    await tester.pump();
     expect(find.text('Yeni Plan Oluştur'), findsOneWidget);
   });
 
   testWidgets('yeni plan butonu önceki ekrana döner', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (context) => ElevatedButton(
-            onPressed: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ResultScreen(travelRoute: testRoute),
+      ChangeNotifierProvider(
+        create: (_) => SettingsProvider(),
+        child: MaterialApp(
+          home: Builder(
+            builder: (context) => ElevatedButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const ResultScreen(travelRoute: testRoute),
+                ),
               ),
+              child: const Text('Devam'),
             ),
-            child: const Text('Devam'),
           ),
         ),
       ),
@@ -69,9 +83,8 @@ void main() {
   });
 
   testWidgets('itinerary bir ListView içinde render edilir', (tester) async {
-    await tester.pumpWidget(
-      const MaterialApp(home: ResultScreen(travelRoute: testRoute)),
-    );
+    await tester.pumpWidget(_wrap(const ResultScreen(travelRoute: testRoute)));
+    await tester.pump();
     expect(find.byType(ListView), findsOneWidget);
   });
 
@@ -82,9 +95,8 @@ void main() {
       budget: 'Ekonomik',
       itinerary: '',
     );
-    await tester.pumpWidget(
-      const MaterialApp(home: ResultScreen(travelRoute: emptyRoute)),
-    );
+    await tester.pumpWidget(_wrap(const ResultScreen(travelRoute: emptyRoute)));
+    await tester.pump();
     expect(find.text('Test'), findsOneWidget);
   });
 
@@ -97,9 +109,8 @@ void main() {
       budget: 'Lüks',
       itinerary: longItinerary,
     );
-    await tester.pumpWidget(
-      MaterialApp(home: ResultScreen(travelRoute: longRoute)),
-    );
+    await tester.pumpWidget(_wrap(ResultScreen(travelRoute: longRoute)));
+    await tester.pump();
     expect(find.text('Tokyo'), findsOneWidget);
     expect(find.text('14 Gün'), findsOneWidget);
   });

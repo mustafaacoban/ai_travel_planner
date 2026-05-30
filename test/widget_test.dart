@@ -12,6 +12,7 @@ class FakeTravelService implements ITravelService {
     required String destination,
     required int days,
     required String budget,
+    String language = 'tr',
   }) async {
     return TravelRoute(
       destination: destination,

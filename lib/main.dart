@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/travel_provider.dart';
+import 'providers/settings_provider.dart';
 import 'views/form_screen.dart';
 
 void main() {
@@ -14,26 +15,46 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final provider = travelProvider;
-    final app = _buildMaterialApp();
-    return provider != null
-        ? ChangeNotifierProvider.value(value: provider, child: app)
-        : ChangeNotifierProvider(create: (_) => TravelProvider(), child: app);
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        travelProvider != null
+            ? ChangeNotifierProvider.value(value: travelProvider!)
+            : ChangeNotifierProvider(create: (_) => TravelProvider()),
+      ],
+      child: const _AppRoot(),
+    );
   }
+}
 
-  Widget _buildMaterialApp() {
+class _AppRoot extends StatelessWidget {
+  const _AppRoot();
+
+  @override
+  Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
     return MaterialApp(
       title: 'AI Rota Planlayıcı',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-        ),
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        useMaterial3: true,
-      ),
+      themeMode: settings.themeMode,
+      theme: _buildTheme(Brightness.light),
+      darkTheme: _buildTheme(Brightness.dark),
       home: const FormScreen(),
+    );
+  }
+
+  ThemeData _buildTheme(Brightness brightness) {
+    return ThemeData(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: brightness,
+      ),
+      textTheme: GoogleFonts.poppinsTextTheme(
+        brightness == Brightness.dark
+            ? ThemeData.dark().textTheme
+            : ThemeData.light().textTheme,
+      ),
+      useMaterial3: true,
     );
   }
 }

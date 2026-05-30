@@ -27,13 +27,14 @@ class CacheService {
     if (raw == null) return null;
 
     final data = jsonDecode(raw) as Map<String, dynamic>;
-    final age = DateTime.now().millisecondsSinceEpoch - (data['cachedAt'] as int);
+    final age = DateTime.now().millisecondsSinceEpoch - (data['cachedAt'] as num).toInt();
 
     if (age > _ttl.inMilliseconds) {
       await prefs.remove(_key(destination, days, budget));
       return null;
     }
 
-    return TravelRoute.fromJson(data);
+    final routeData = Map<String, dynamic>.from(data)..remove('cachedAt');
+    return TravelRoute.fromJson(routeData);
   }
 }
