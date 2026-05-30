@@ -2,6 +2,16 @@
 
 Yapay zeka destekli seyahat rota planlayıcısı. Gideceğin şehri, gün sayısını ve bütçeni gir — Google Gemini AI senin için kişiselleştirilmiş bir gezi planı oluştursun.
 
+## Ekran Görüntüleri
+
+<p align="center">
+  <img src="screenshots/dark_mode.jpeg" width="30%" alt="Dark Mode"/>
+  &nbsp;&nbsp;
+  <img src="screenshots/light_mode.jpeg" width="30%" alt="Light Mode"/>
+  &nbsp;&nbsp;
+  <img src="screenshots/turkish_mode.jpeg" width="30%" alt="Türkçe"/>
+</p>
+
 ## Özellikler
 
 | Özellik | Açıklama |
