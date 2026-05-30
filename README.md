@@ -35,7 +35,7 @@ cd ai_travel_planner
 flutter pub get
 
 # Uygulamayı çalıştır (API anahtarını ekleyerek)
-flutter run --dart-define=GEMINI_API_KEY=senin_api_anahtarin
+flutter run --dart-define=GEMINI_API_KEY=<API_KEY>
 ```
 
 > API anahtarı `--dart-define` ile derleme zamanında enjekte edilir; kaynak koda gömülmez.
