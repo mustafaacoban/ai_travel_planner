@@ -47,6 +47,14 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getBool('dark_mode'), isTrue);
     });
+
+    test('toggleDarkMode notifyListeners tetikler', () async {
+      final p = SettingsProvider();
+      int notifyCount = 0;
+      p.addListener(() => notifyCount++);
+      await p.toggleDarkMode();
+      expect(notifyCount, greaterThan(0));
+    });
   });
 
   group('SettingsProvider.setLanguage', () {
