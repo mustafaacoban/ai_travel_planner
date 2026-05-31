@@ -121,5 +121,14 @@ void main() {
       await svc.removeAt(0);
       expect(await svc.isFavorite(paris), isFalse);
     });
+
+    // isFavorite yalnızca destination+days+budget karşılaştırır, itinerary değil.
+    // Aynı parametreli ama farklı içerikli rota yine de favori sayılır — bu kasıtlı davranış.
+    test('farklı itinerary aynı destination+days+budget true döner', () async {
+      final svc = FavoritesService();
+      await svc.add(paris);
+      const parisGuncel = TravelRoute(destination: 'Paris', days: 3, budget: 'Orta', itinerary: 'Farklı içerik');
+      expect(await svc.isFavorite(parisGuncel), isTrue);
+    });
   });
 }
