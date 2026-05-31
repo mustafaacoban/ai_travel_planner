@@ -1,3 +1,7 @@
+// Bu test dosyası --dart-define=GEMINI_API_KEY olmadan çalıştırılmalıdır.
+// Aksi takdirde AppConfig.isApiKeyConfigured true döner ve test beklenen
+// exception yerine gerçek bir HTTP hatası alır.
+// Doğru komut: flutter test
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ai_travel_planner/services/travel_service.dart';
 
