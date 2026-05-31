@@ -68,6 +68,13 @@ void main() {
       final result = await cache.get('PARIS', 3, 'Orta');
       expect(result, isNotNull);
     });
+
+    test('bütçe büyük harf aynı key üretir (toLowerCase)', () async {
+      final cache = CacheService();
+      await cache.save(paris3Orta); // budget: 'Orta'
+      final result = await cache.get('Paris', 3, 'ORTA');
+      expect(result, isNotNull);
+    });
   });
 
   group('CacheService TTL', () {
