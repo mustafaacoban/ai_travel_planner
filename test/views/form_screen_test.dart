@@ -87,14 +87,20 @@ void main() {
     expect(find.text('Lütfen bir varış noktası girin'), findsOneWidget);
   });
 
-  testWidgets('bütçe kartına tıklamak seçimi değiştirir', (tester) async {
+  testWidgets('seçilen bütçe gönderimde rotaya yansır', (tester) async {
     await tester.pumpWidget(buildForm());
 
-    await tester.tap(find.text('Ekonomik'));
-    await tester.pumpAndSettle();
-
+    // Lüks seçeneğini seç (varsayılan Orta)
     await tester.tap(find.text('Lüks'));
     await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField), 'Dubai');
+    await tapSubmitButton(tester);
+    await tester.pumpAndSettle();
+
+    // ResultScreen'de Lüks bütçesi görünmeli
+    expect(find.byType(ResultScreen), findsOneWidget);
+    expect(find.text('Lüks'), findsWidgets);
   });
 
   testWidgets('başarılı gönderimde sonuç ekranına geçer', (tester) async {
